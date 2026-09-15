@@ -528,3 +528,260 @@ a { color: inherit; text-decoration: none; }
     .nav-links a:not(.nav-cta) { display: none; }
     .hero { padding: 3rem 1rem 2rem; }
 }
+
+/* ===================================================================== */
+/* Landing page — hero v2 & "see how it works" modal                     */
+/* (styles specific to templates/landing.html)                           */
+/* ===================================================================== */
+
+/* ------------------------------------------------------------------ */
+/* Hero v2 — centered layout                                           */
+/* ------------------------------------------------------------------ */
+
+.hero-v2 {
+    grid-template-columns: 1fr;
+    text-align: center;
+    max-width: 1040px;
+    padding-top: 4rem;
+}
+
+.hero-v2 .hero-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.hero-v2 .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-transform: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 0.5rem 1.1rem;
+}
+
+.badge-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: inline-block;
+}
+
+.hero-v2 .hero-title {
+    font-family: var(--font-body);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    font-size: clamp(2.75rem, 6vw, 4.25rem);
+}
+
+.hero-title-accent {
+    color: var(--accent);
+    font-style: normal;
+}
+
+.hero-v2 .hero-subtitle {
+    max-width: 560px;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.hero-v2 .hero-actions {
+    justify-content: center;
+}
+
+.hero-btn {
+    display: inline-block;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 0.8rem 1.75rem;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: background 0.2s;
+    text-decoration: none;
+}
+
+.hero-btn:hover {
+    background: var(--accent);
+}
+
+.hero-v2 .hero-visual {
+    width: 100%;
+    justify-content: center;
+    margin-top: 3rem;
+}
+
+.hero-v2 .mock-card {
+    max-width: 950px;
+    width: 100%;
+    background: var(--paper-warm);
+    padding: 1.5rem;
+}
+
+/* ------------------------------------------------------------------ */
+/* Mock card window dots                                               */
+/* ------------------------------------------------------------------ */
+
+.mock-window-dots {
+    display: flex;
+    gap: 0.4rem;
+    margin-bottom: 1.25rem;
+}
+
+.mock-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.mock-dot-red { background: #e5766c; }
+.mock-dot-yellow { background: #e8b567; }
+.mock-dot-green { background: #8bc79c; }
+
+/* ------------------------------------------------------------------ */
+/* Stat tiles                                                          */
+/* ------------------------------------------------------------------ */
+
+.mock-stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.mock-stat {
+    background: var(--paper-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1.1rem 1.25rem;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.mock-stat-label {
+    font-size: 0.8rem;
+    color: var(--ink-muted);
+}
+
+.mock-stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--ink);
+}
+
+.mock-stat-delta {
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.mock-stat-delta-up { color: var(--danger); }
+.mock-stat-delta-good { color: var(--accent); }
+.mock-stat-delta-neutral { color: var(--ink-faint); }
+
+/* ------------------------------------------------------------------ */
+/* Category bars                                                       */
+/* ------------------------------------------------------------------ */
+
+.mock-bars-card {
+    background: var(--paper-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.mock-bar-row-v2 {
+    display: grid;
+    grid-template-columns: 70px 1fr;
+    align-items: center;
+    gap: 1rem;
+}
+
+.mock-bar-row-v2 .mock-cat {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--ink-soft);
+    text-align: left;
+}
+
+.mock-bar-food { background: #f2994a; }
+.mock-bar-travel { background: #4a90e2; }
+.mock-bar-bills { background: #7c6fe0; }
+
+/* ------------------------------------------------------------------ */
+/* Responsive                                                           */
+/* ------------------------------------------------------------------ */
+
+@media (max-width: 700px) {
+    .mock-stats-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ------------------------------------------------------------------ */
+/* "See how it works" modal                                            */
+/* ------------------------------------------------------------------ */
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 15, 15, 0.7);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.modal-overlay.is-open {
+    display: flex;
+}
+
+.modal-box {
+    position: relative;
+    width: 100%;
+    max-width: 860px;
+    background: var(--ink);
+    border-radius: var(--radius-md);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+}
+
+.modal-close {
+    position: absolute;
+    top: -2.5rem;
+    right: 0;
+    background: transparent;
+    border: none;
+    color: var(--paper);
+    font-size: 1.75rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+}
+
+.modal-video-wrap {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.modal-iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
