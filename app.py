@@ -70,7 +70,8 @@ def login():
         return render_template("login.html")
 
     session["user_id"] = user["id"]
-    return redirect(url_for("landing"))
+    session["user_name"] = user["name"]
+    return redirect(url_for("profile"))
 
 
 @app.route("/logout")
@@ -95,7 +96,48 @@ def privacy():
 
 @app.route("/profile")
 def profile():
-    return "Profile page — coming in Step 4"
+    if not session.get("user_id"):
+        flash("Please sign in to view your profile.", "error")
+        return redirect(url_for("login"))
+
+    user = {
+        "name": "Demo User",
+        "email": "demo@spendly.com",
+        "initials": "DU",
+        "member_since": "January 2025",
+    }
+
+    stats = [
+        {"label": "Total Spent", "value": "$433.64"},
+        {"label": "Transactions", "value": "8"},
+        {"label": "Top Category", "value": "Shopping"},
+    ]
+
+    transactions = [
+        {"date": "Sep 21, 2026", "description": "Dinner out", "category": "Food", "amount": "$32.40"},
+        {"date": "Sep 18, 2026", "description": "New shoes", "category": "Shopping", "amount": "$150.00"},
+        {"date": "Sep 15, 2026", "description": "Movie night", "category": "Entertainment", "amount": "$60.00"},
+        {"date": "Sep 12, 2026", "description": "Pharmacy purchase", "category": "Health", "amount": "$25.00"},
+        {"date": "Sep 9, 2026", "description": "Electricity bill", "category": "Bills", "amount": "$89.99"},
+    ]
+
+    categories = [
+        {"name": "Shopping", "total": "$150.00", "percent": 35},
+        {"name": "Bills", "total": "$89.99", "percent": 21},
+        {"name": "Entertainment", "total": "$60.00", "percent": 14},
+        {"name": "Food", "total": "$77.90", "percent": 18},
+        {"name": "Health", "total": "$25.00", "percent": 6},
+        {"name": "Transport", "total": "$12.00", "percent": 3},
+        {"name": "Other", "total": "$18.75", "percent": 3},
+    ]
+
+    return render_template(
+        "profile.html",
+        user=user,
+        stats=stats,
+        transactions=transactions,
+        categories=categories,
+    )
 
 
 @app.route("/expenses/add")

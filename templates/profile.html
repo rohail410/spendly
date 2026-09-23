@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Profile — Spendly{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="profile-page">
+
+    <section class="profile-card auth-card">
+        <div class="profile-avatar">{{ user.initials }}</div>
+        <div class="profile-info">
+            <h1 class="profile-name">{{ user.name }}</h1>
+            <p class="profile-email">{{ user.email }}</p>
+            <p class="profile-member-since">Member since {{ user.member_since }}</p>
+        </div>
+    </section>
+
+    <section class="profile-stats-row">
+        {% for stat in stats %}
+        <div class="profile-stat">
+            <span class="profile-stat-label">{{ stat.label }}</span>
+            <span class="profile-stat-value">{{ stat.value }}</span>
+        </div>
+        {% endfor %}
+    </section>
+
+    <section class="profile-section auth-card">
+        <h2 class="profile-section-title">Recent Transactions</h2>
+        <table class="tx-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Category</th>
+                    <th class="tx-amount-col">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tx in transactions %}
+                <tr>
+                    <td>{{ tx.date }}</td>
+                    <td>{{ tx.description }}</td>
+                    <td><span class="category-badge category-{{ tx.category|lower }}">{{ tx.category }}</span></td>
+                    <td class="tx-amount-col">{{ tx.amount }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+    <section class="profile-section auth-card">
+        <h2 class="profile-section-title">Category Breakdown</h2>
+        <div class="category-breakdown">
+            {% for cat in categories %}
+            <div class="category-row">
+                <div class="category-row-top">
+                    <span class="category-badge category-{{ cat.name|lower }}">{{ cat.name }}</span>
+                    <span class="category-row-total">{{ cat.total }}</span>
+                </div>
+                <div class="category-bar-track">
+                    <div class="category-bar-fill category-fill-{{ cat.name|lower }}" style="--bar-width: {{ cat.percent }}%"></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+</div>
+{% endblock %}
