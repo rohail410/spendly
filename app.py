@@ -1,9 +1,16 @@
 import sqlite3
+from datetime import datetime
 
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from werkzeug.security import check_password_hash
 
 from database.db import get_db, init_db, seed_db, create_user, get_user_by_email
+from database.queries import (
+    get_user_by_id,
+    get_summary_stats,
+    get_recent_transactions,
+    get_category_breakdown,
+)
 
 app = Flask(__name__)
 app.secret_key = "dev-secret-key-change-in-production"
@@ -91,6 +98,51 @@ def privacy():
 
 
 # ------------------------------------------------------------------ #
+# Profile page sections — each helper is owned by one subagent        #
+# ------------------------------------------------------------------ #
+
+# --- SECTION: transaction history (subagent 1) ---
+def _transactions_section(user_id):
+    transactions = []
+    for item in get_recent_transactions(user_id, limit=5):
+        tx_date = datetime.strptime(item["date"], "%Y-%m-%d")
+        transactions.append(
+            {
+                "date": f"{tx_date.strftime('%b')} {tx_date.day}, {tx_date.year}",
+                "description": item["description"] or "",
+                "category": item["category"],
+                "amount": f"₹{item['amount']:.2f}",
+            }
+        )
+    return transactions
+# --- END SECTION: transaction history ---
+
+
+# --- SECTION: summary stats (subagent 2) ---
+def _stats_section(user_id):
+    summary = get_summary_stats(user_id)
+    return [
+        {"label": "Total Spent", "value": f"₹{summary['total_spent']:.2f}"},
+        {"label": "Transactions", "value": str(summary["transaction_count"])},
+        {"label": "Top Category", "value": summary["top_category"]},
+    ]
+# --- END SECTION: summary stats ---
+
+
+# --- SECTION: category breakdown (subagent 3) ---
+def _categories_section(user_id):
+    return [
+        {
+            "name": item["name"],
+            "total": f"₹{item['amount']:.2f}",
+            "percent": item["pct"],
+        }
+        for item in get_category_breakdown(user_id)
+    ]
+# --- END SECTION: category breakdown ---
+
+
+# ------------------------------------------------------------------ #
 # Placeholder routes — students will implement these                  #
 # ------------------------------------------------------------------ #
 
@@ -100,36 +152,17 @@ def profile():
         flash("Please sign in to view your profile.", "error")
         return redirect(url_for("login"))
 
-    user = {
-        "name": "Demo User",
-        "email": "demo@spendly.com",
-        "initials": "DU",
-        "member_since": "January 2025",
-    }
+    user_id = session["user_id"]
+    user = get_user_by_id(user_id)
+    if user is None:
+        session.clear()
+        flash("Please sign in to view your profile.", "error")
+        return redirect(url_for("login"))
+    user["initials"] = "".join(word[0] for word in user["name"].split()[:2]).upper()
 
-    stats = [
-        {"label": "Total Spent", "value": "$433.64"},
-        {"label": "Transactions", "value": "8"},
-        {"label": "Top Category", "value": "Shopping"},
-    ]
-
-    transactions = [
-        {"date": "Sep 21, 2026", "description": "Dinner out", "category": "Food", "amount": "$32.40"},
-        {"date": "Sep 18, 2026", "description": "New shoes", "category": "Shopping", "amount": "$150.00"},
-        {"date": "Sep 15, 2026", "description": "Movie night", "category": "Entertainment", "amount": "$60.00"},
-        {"date": "Sep 12, 2026", "description": "Pharmacy purchase", "category": "Health", "amount": "$25.00"},
-        {"date": "Sep 9, 2026", "description": "Electricity bill", "category": "Bills", "amount": "$89.99"},
-    ]
-
-    categories = [
-        {"name": "Shopping", "total": "$150.00", "percent": 35},
-        {"name": "Bills", "total": "$89.99", "percent": 21},
-        {"name": "Entertainment", "total": "$60.00", "percent": 14},
-        {"name": "Food", "total": "$77.90", "percent": 18},
-        {"name": "Health", "total": "$25.00", "percent": 6},
-        {"name": "Transport", "total": "$12.00", "percent": 3},
-        {"name": "Other", "total": "$18.75", "percent": 3},
-    ]
+    stats = _stats_section(user_id)
+    transactions = _transactions_section(user_id)
+    categories = _categories_section(user_id)
 
     return render_template(
         "profile.html",
