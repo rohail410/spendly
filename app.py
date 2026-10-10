@@ -1,5 +1,6 @@
+import calendar
 import sqlite3
-from datetime import datetime
+from datetime import date, datetime
 
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from werkzeug.security import check_password_hash
@@ -101,10 +102,57 @@ def privacy():
 # Profile page sections — each helper is owned by one subagent        #
 # ------------------------------------------------------------------ #
 
+def _parse_date_param(value):
+    """Return value if it is a valid YYYY-MM-DD string, else None."""
+    try:
+        datetime.strptime(value or "", "%Y-%m-%d")
+    except ValueError:
+        return None
+    return value
+
+
+def _resolve_date_filter(args):
+    date_from = _parse_date_param(args.get("date_from"))
+    date_to = _parse_date_param(args.get("date_to"))
+    if date_from and date_to and date_from > date_to:
+        flash("Start date must be before end date.", "error")
+        return None, None
+    return date_from, date_to
+
+
+def _months_ago(today, months):
+    month_index = today.year * 12 + today.month - 1 - months
+    year, month = divmod(month_index, 12)
+    month += 1
+    day = min(today.day, calendar.monthrange(year, month)[1])
+    return date(year, month, day)
+
+
+def _filter_presets(today, date_from, date_to):
+    presets = [
+        ("This Month", today.replace(day=1), today),
+        ("Last 3 Months", _months_ago(today, 3), today),
+        ("Last 6 Months", _months_ago(today, 6), today),
+        ("All Time", None, None),
+    ]
+    return [
+        {
+            "label": label,
+            "date_from": start.isoformat() if start else None,
+            "date_to": end.isoformat() if end else None,
+            "active": (start.isoformat() if start else None) == date_from
+            and (end.isoformat() if end else None) == date_to,
+        }
+        for label, start, end in presets
+    ]
+
+
 # --- SECTION: transaction history (subagent 1) ---
-def _transactions_section(user_id):
+def _transactions_section(user_id, date_from=None, date_to=None):
     transactions = []
-    for item in get_recent_transactions(user_id, limit=5):
+    for item in get_recent_transactions(
+        user_id, limit=5, date_from=date_from, date_to=date_to
+    ):
         tx_date = datetime.strptime(item["date"], "%Y-%m-%d")
         transactions.append(
             {
@@ -119,8 +167,8 @@ def _transactions_section(user_id):
 
 
 # --- SECTION: summary stats (subagent 2) ---
-def _stats_section(user_id):
-    summary = get_summary_stats(user_id)
+def _stats_section(user_id, date_from=None, date_to=None):
+    summary = get_summary_stats(user_id, date_from=date_from, date_to=date_to)
     return [
         {"label": "Total Spent", "value": f"₹{summary['total_spent']:.2f}"},
         {"label": "Transactions", "value": str(summary["transaction_count"])},
@@ -130,14 +178,16 @@ def _stats_section(user_id):
 
 
 # --- SECTION: category breakdown (subagent 3) ---
-def _categories_section(user_id):
+def _categories_section(user_id, date_from=None, date_to=None):
     return [
         {
             "name": item["name"],
             "total": f"₹{item['amount']:.2f}",
             "percent": item["pct"],
         }
-        for item in get_category_breakdown(user_id)
+        for item in get_category_breakdown(
+            user_id, date_from=date_from, date_to=date_to
+        )
     ]
 # --- END SECTION: category breakdown ---
 
@@ -160,9 +210,13 @@ def profile():
         return redirect(url_for("login"))
     user["initials"] = "".join(word[0] for word in user["name"].split()[:2]).upper()
 
-    stats = _stats_section(user_id)
-    transactions = _transactions_section(user_id)
-    categories = _categories_section(user_id)
+    date_from, date_to = _resolve_date_filter(request.args)
+    presets = _filter_presets(date.today(), date_from, date_to)
+    custom_active = bool(date_from or date_to) and not any(p["active"] for p in presets)
+
+    stats = _stats_section(user_id, date_from, date_to)
+    transactions = _transactions_section(user_id, date_from, date_to)
+    categories = _categories_section(user_id, date_from, date_to)
 
     return render_template(
         "profile.html",
@@ -170,7 +224,19 @@ def profile():
         stats=stats,
         transactions=transactions,
         categories=categories,
+        date_from=date_from,
+        date_to=date_to,
+        presets=presets,
+        custom_active=custom_active,
     )
+
+
+@app.route("/analytics")
+def analytics():
+    if not session.get("user_id"):
+        flash("Please sign in to view analytics.", "error")
+        return redirect(url_for("login"))
+    return render_template("analytics.html")
 
 
 @app.route("/expenses/add")

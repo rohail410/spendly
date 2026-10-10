@@ -1,0 +1,163 @@
+/* ------------------------------------------------------------------ */
+/* Analytics — "Coming soon" page                                      */
+/* ------------------------------------------------------------------ */
+
+.coming-soon {
+    --cs-green: #2d4a3e;
+    --cs-green-deep: #1a2f25;
+    --cs-green-mid: #3f6252;
+    --cs-title: #1f3a30;
+    --cs-text: #4b5563;
+    --cs-note: #9ca3af;
+
+    min-height: calc(100vh - 60px - 100px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 50%, #e5e7eb 100%);
+}
+
+.coming-soon-card {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    max-width: 512px;
+    background: var(--paper-card);
+    border-radius: 24px;
+    padding: 2.5rem 3rem 3rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.18);
+}
+
+/* Decorative corner circles */
+.coming-soon-corner {
+    position: absolute;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.coming-soon-corner-top {
+    top: -80px;
+    right: -80px;
+    background: linear-gradient(225deg, #e5e7eb, rgba(243, 244, 246, 0.2));
+}
+
+.coming-soon-corner-bottom {
+    bottom: -80px;
+    left: -80px;
+    background: linear-gradient(45deg, #e5e7eb, rgba(243, 244, 246, 0.2));
+}
+
+/* Icon tile */
+.coming-soon-icon {
+    position: relative;
+    width: 96px;
+    height: 96px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    background: linear-gradient(135deg, var(--cs-green) 0%, var(--cs-green-deep) 100%);
+    box-shadow: 0 20px 40px -10px rgba(26, 47, 37, 0.35);
+    margin-bottom: 1.75rem;
+    transition: transform 0.3s ease;
+}
+
+.coming-soon-icon:hover { transform: scale(1.05); }
+
+/* Badge */
+.coming-soon-badge {
+    position: relative;
+    display: inline-block;
+    padding: 0.55rem 1.25rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #fff;
+    background: linear-gradient(90deg, var(--cs-green) 0%, var(--cs-green-mid) 100%);
+    box-shadow: 0 8px 16px -4px rgba(45, 74, 62, 0.35);
+    margin-bottom: 1.5rem;
+}
+
+/* Copy */
+.coming-soon-title {
+    position: relative;
+    font-family: var(--font-body);
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    color: var(--cs-title);
+    margin-bottom: 1rem;
+}
+
+.coming-soon-body {
+    position: relative;
+    max-width: 420px;
+    font-size: 1.05rem;
+    line-height: 1.65;
+    color: var(--cs-text);
+    margin-bottom: 2rem;
+}
+
+/* Animated dots */
+.coming-soon-dots {
+    position: relative;
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.coming-soon-dots span {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--cs-green-mid);
+    animation: coming-soon-pulse 1.5s ease-in-out infinite;
+}
+
+.coming-soon-dots span:nth-child(2) { animation-delay: 0.2s; }
+.coming-soon-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes coming-soon-pulse {
+    0%, 100% { opacity: 0.4; transform: scale(0.9); }
+    50% { opacity: 1; transform: scale(1.1); }
+}
+
+.coming-soon-note {
+    position: relative;
+    font-size: 0.8rem;
+    color: var(--cs-note);
+}
+
+/* Soft glow along the bottom edge */
+.coming-soon-glow {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 128px;
+    height: 4px;
+    transform: translateX(-50%);
+    border-radius: 999px;
+    background: linear-gradient(90deg, transparent, var(--cs-green), transparent);
+    opacity: 0.35;
+}
+
+@media (max-width: 600px) {
+    .coming-soon { padding: 1rem; }
+    .coming-soon-card { padding: 2rem 1.5rem 2.5rem; }
+    .coming-soon-title { font-size: 1.6rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .coming-soon-dots span { animation: none; }
+}

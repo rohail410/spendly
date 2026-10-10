@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics — Spendly{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/analytics.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="coming-soon">
+    <div class="coming-soon-card">
+        <span class="coming-soon-corner coming-soon-corner-top" aria-hidden="true"></span>
+        <span class="coming-soon-corner coming-soon-corner-bottom" aria-hidden="true"></span>
+
+        <div class="coming-soon-icon">
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+        </div>
+
+        <span class="coming-soon-badge">Coming Soon</span>
+
+        <h1 class="coming-soon-title">Advanced Analytics</h1>
+        <p class="coming-soon-body">We're working on powerful insights and visualizations to help you understand your spending patterns better.</p>
+
+        <div class="coming-soon-dots" aria-hidden="true">
+            <span></span><span></span><span></span>
+        </div>
+        <p class="coming-soon-note">We're crafting something special</p>
+
+        <span class="coming-soon-glow" aria-hidden="true"></span>
+    </div>
+</section>
+{% endblock %}
