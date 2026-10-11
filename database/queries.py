@@ -2,6 +2,31 @@ from datetime import datetime
 
 from database.db import get_db
 
+EXPENSE_CATEGORIES = (
+    "Food",
+    "Transport",
+    "Bills",
+    "Health",
+    "Entertainment",
+    "Shopping",
+    "Other",
+)
+
+
+def insert_expense(user_id, amount, category, date, description):
+    """Insert an expense for a user and return its new id."""
+    conn = get_db()
+    try:
+        cursor = conn.execute(
+            "INSERT INTO expenses (user_id, amount, category, date, description) "
+            "VALUES (?, ?, ?, ?, ?)",
+            (user_id, amount, category, date, description),
+        )
+        conn.commit()
+        return cursor.lastrowid
+    finally:
+        conn.close()
+
 
 def get_user_by_id(user_id):
     conn = get_db()

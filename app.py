@@ -1,4 +1,5 @@
 import calendar
+import math
 import sqlite3
 from datetime import date, datetime
 
@@ -7,6 +8,8 @@ from werkzeug.security import check_password_hash
 
 from database.db import get_db, init_db, seed_db, create_user, get_user_by_email
 from database.queries import (
+    EXPENSE_CATEGORIES,
+    insert_expense,
     get_user_by_id,
     get_summary_stats,
     get_recent_transactions,
@@ -239,9 +242,67 @@ def analytics():
     return render_template("analytics.html")
 
 
-@app.route("/expenses/add")
+def _validate_expense_form(form):
+    """Return (values, error); error is None when the form is valid."""
+    raw_amount = form.get("amount", "").strip()
+    category = form.get("category", "").strip()
+    raw_date = form.get("date", "").strip()
+    description = form.get("description", "").strip()[:200]
+
+    try:
+        amount = float(raw_amount)
+    except ValueError:
+        return None, "Amount must be a number."
+    if not math.isfinite(amount) or amount <= 0:
+        return None, "Amount must be greater than 0."
+
+    if category not in EXPENSE_CATEGORIES:
+        return None, "Please choose a valid category."
+
+    try:
+        datetime.strptime(raw_date, "%Y-%m-%d")
+    except ValueError:
+        return None, "Please enter a valid date."
+
+    return {
+        "amount": round(amount, 2),
+        "category": category,
+        "date": raw_date,
+        "description": description or None,
+    }, None
+
+
+@app.route("/expenses/add", methods=["GET", "POST"])
 def add_expense():
-    return "Add expense — coming in Step 7"
+    if not session.get("user_id"):
+        flash("Please sign in to add an expense.", "error")
+        return redirect(url_for("login"))
+
+    if request.method == "GET":
+        return render_template(
+            "add_expense.html",
+            categories=EXPENSE_CATEGORIES,
+            form={"date": date.today().isoformat()},
+        )
+
+    values, error = _validate_expense_form(request.form)
+    if error:
+        flash(error, "error")
+        return render_template(
+            "add_expense.html",
+            categories=EXPENSE_CATEGORIES,
+            form=request.form,
+        )
+
+    insert_expense(
+        session["user_id"],
+        values["amount"],
+        values["category"],
+        values["date"],
+        values["description"],
+    )
+    flash("Expense added.", "success")
+    return redirect(url_for("profile"))
 
 
 @app.route("/expenses/<int:id>/edit")
